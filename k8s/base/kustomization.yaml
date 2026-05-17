@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: messenger
+
+resources:
+  - postgres/secret.yaml
+  - postgres/service.yaml
+  - postgres/statefulset.yaml
+  - migrations/job-migrate-users.yaml
+  - services/user-service.yaml
+  - services/message-service.yaml
+  - services/bff.yaml
+  - services/frontend.yaml
+  - ingress.yaml

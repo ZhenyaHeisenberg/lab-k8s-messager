@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-users
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -U messenger; do
+                echo waiting for postgres;
+                sleep 2;
+              done
+      containers:
+        - name: goose
+          image: ghcr.io/kukymbr/goose-docker:latest
+          env:
+            - name: GOOSE_DRIVER
+              value: postgres
+            - name: GOOSE_DBSTRING
+              value: postgres://messenger:messenger123@postgres:5432/messenger?sslmode=disable
+            - name: GOOSE_MIGRATION_DIR
+              value: /migrations/users
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+      volumes:
+        - name: migrations
+          emptyDir: {}
