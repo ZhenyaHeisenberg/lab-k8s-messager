@@ -6,20 +6,27 @@ namespace: messenger-dev
 resources:
   - ../../base
 
+labels:
+  - pairs:
+      environment: dev
+      managed-by: kustomize
+
 patches:
+  - target:
+      kind: Deployment
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
   - target:
       kind: Deployment
     patch: |
       - op: replace
         path: /spec/replicas
         value: 1
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/memory
-        value: "64Mi"
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: "128Mi"
-
-commonLabels:
-  environment: dev
-  managed-by: kustomize
